@@ -1,8 +1,8 @@
 #pragma once
 #include "Typedef.h"
-
 //The maximum size of the stack
-const int MAXSIZE = 200;
+#define MAXSIZE 1024
+
 
 //Is the stack currently empty
 int isempty();

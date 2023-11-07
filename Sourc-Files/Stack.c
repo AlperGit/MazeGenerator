@@ -3,8 +3,7 @@
 
 #include "../Include-Files/Stack.h"
 #include "Typedef.h"
-//The maximum size of the stack
-#define MAXSIZE 1024
+
 
 
 //The cell stack that is used 
