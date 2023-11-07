@@ -4,8 +4,8 @@
 //A structure to safe the x and y direction.
 struct vector2
 {
-    float x;
-    float y;
+    int x;
+    int y;
 };
 //The typedefinition for the vector2
 typedef struct vector2 Vector2;
