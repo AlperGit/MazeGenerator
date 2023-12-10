@@ -30,8 +30,8 @@ int initMaze(Vector2 grid_size, Vector2 starting_position, int amount_of_cells_t
     gridSize = grid_size;
     startingPosition = starting_position;
     amountOfCellsToGenerate = amount_of_cells_to_generate;
-    //Initialize the maze as a 2dim array ready to be assigned
-    maze = malloc(sizeof(*maze) * gridSize.x * gridSize.y);
+    //Initialize the maze for a specific memory amount to fit the complete grid
+    maze = malloc(sizeof(Cell) * gridSize.x * gridSize.y);
 
     return 0;
 }
@@ -73,14 +73,32 @@ bool isInBounds(int xPosition, int yPosition)
     }
 }
 
+void resetCells()
+{
+    //Iterate over complete maze length
+    for (int i = 0; i < (gridSize.x * gridSize.y); i++)
+    {
+        Cell newCell;
+        //Get the right position of the cell in x direction
+        newCell.position.x = i % 4;
+        newCell.position.x = i / 4;
+        newCell.visited = false;
+        maze[i] = newCell;
+    }   
+}
+
 int generateMaze()
 {
     //Initialize the cell stack to be used as the path that was taken
+    //Set amount of cells to be generated to 0
     int generatedCells = 0;
-
+    //Set the position of the current cell as the starting position
     Cell currentCell;
+    currentCell.position.x = startingPosition.x;
+    currentCell.position.y = startingPosition.y;
 
-    //currentCell = maze[startingPosition.x * gridSize.x + gridSize.y];
+    //Reset the cells so they are not visited and have appropriate position
+    resetCells();
 
     //Generate the cells for this maze
     while (generatedCells < amountOfCellsToGenerate)
@@ -88,7 +106,6 @@ int generateMaze()
         //Set the current cell as visited
 
     }
-    
     
 
 }
