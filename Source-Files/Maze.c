@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 
 #include "../Include-Files/Maze.h"
 #include "../Include-Files/Stack.h"
@@ -21,7 +21,7 @@ int initMaze(Vector2 grid_size, Vector2 starting_position, int amount_of_cells_t
     //Check if amount of cells to generate exceeds gridsize
     int sizeToCheck = gridSize.x * gridSize.y;
     //Is the amount of cells to generate bigger than the grid size
-    if (sizeToCheck < amount_of_cells_to_generate)
+    if (sizeToCheck > amount_of_cells_to_generate)
     {
         //Yes return amount of cells to big error
         return 1;
@@ -80,11 +80,36 @@ void resetCells()
     {
         Cell newCell;
         //Get the right position of the cell in x direction
-        newCell.position.x = i % 4;
-        newCell.position.x = i / 4;
+        //The x position is the res
+        newCell.position.x = i % gridSize.x;
+        newCell.position.y = i / gridSize.y;
         newCell.visited = false;
         maze[i] = newCell;
     }   
+}
+
+void displayMaze()
+{
+    printf("Maze:\n");
+    //Iterate over complete maze length
+    for (int i = 0; i < (gridSize.x * gridSize.y); i++)
+    {
+        //Add a linebreak whenever there is a new line
+        if( i > 0 && i % gridSize.x == 0)
+        {
+            printf("\n");
+        }
+        //If the Cell has been visited print a C else a X
+        if (maze[i].visited)
+        {
+            printf("C");
+        }
+        else
+        {
+            printf("X");
+        }
+    }
+    printf("\n");
 }
 
 int generateMaze()
@@ -100,12 +125,13 @@ int generateMaze()
     //Reset the cells so they are not visited and have appropriate position
     resetCells();
 
-    //Generate the cells for this maze
-    while (generatedCells < amountOfCellsToGenerate)
-    {
-        //Set the current cell as visited
+    //Get the current cell that is used
+    //Create the route for this maze to be solvable
+    // while (generatedCells < amountOfCellsToGenerate)
+    // {
+    //     //Set the current cell as visited
 
-    }
+    // }
     
 
 }

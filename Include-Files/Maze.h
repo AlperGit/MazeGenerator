@@ -11,4 +11,7 @@ bool isYInBounds(int yPosition);
 
 bool isInBounds(int xPosition, int yPosition);
 
+void displayMaze();
+
 int generateMaze();
+
