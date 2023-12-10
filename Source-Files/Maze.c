@@ -112,26 +112,36 @@ void displayMaze()
     printf("\n");
 }
 
+//Return the cell that is defined from position
+Cell * getMazeCellFromPosition(Vector2 position)
+{
+    int index = 0;
+    index = (position.y * gridSize.y) + position.x;
+    return &maze[index];
+}
+
 int generateMaze()
 {
     //Initialize the cell stack to be used as the path that was taken
     //Set amount of cells to be generated to 0
     int generatedCells = 0;
-    //Set the position of the current cell as the starting position
-    Cell currentCell;
-    currentCell.position.x = startingPosition.x;
-    currentCell.position.y = startingPosition.y;
 
     //Reset the cells so they are not visited and have appropriate position
     resetCells();
 
-    //Get the current cell that is used
-    //Create the route for this maze to be solvable
-    // while (generatedCells < amountOfCellsToGenerate)
-    // {
-    //     //Set the current cell as visited
+    //Get the current cell that is used from starting position
+    Cell * p_currentCell = getMazeCellFromPosition(startingPosition);
+    Cell currentCell = *p_currentCell;
 
-    // }
+    //Create the route for this maze to be solvable
+    while (generatedCells < amountOfCellsToGenerate)
+    {
+        //Set the current cell as visited
+        currentCell.visited = true;
+        //Find all possible neighbors of this cell
+        //Randomly select one of these neighbors
+        //Is one o
+    }
     
 
 }
