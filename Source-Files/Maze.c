@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+
+#include "../Include-Files/Maze.h"
 #include "../Include-Files/Stack.h"
 #include "../Include-Files/Typedef.h"
 
@@ -14,19 +16,21 @@ const int minimumAmountCells = 2;
 //The maze as a two dimensional array is initialized in init
 Cell * maze;
 
-int initMaze(Vector2 grid_size, Vector2 starting_position, int amount_of_cell_to_generate)
+int initMaze(Vector2 grid_size, Vector2 starting_position, int amount_of_cells_to_generate)
 {
     //Check if amount of cells to generate exceeds gridsize
     int sizeToCheck = gridSize.x * gridSize.y;
-    if (sizeToCheck < amount_of_cell_to_generate)
+    //Is the amount of cells to generate bigger than the grid size
+    if (sizeToCheck < amount_of_cells_to_generate)
     {
+        //Yes return amount of cells to big error
         return 1;
     }
     //Initialize maze
     gridSize = grid_size;
     startingPosition = starting_position;
-    amountOfCellsToGenerate = amount_of_cell_to_generate;
-    //Initialize the maze as a 2dim array
+    amountOfCellsToGenerate = amount_of_cells_to_generate;
+    //Initialize the maze as a 2dim array ready to be assigned
     maze = malloc(sizeof(*maze) * gridSize.x * gridSize.y);
 
     return 0;
