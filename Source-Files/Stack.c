@@ -13,8 +13,10 @@ int top = -1;
 /* Check if the stack is empty */
 int isempty(){
    if(top == -1)
+   //Stack does not contain elements return 1
       return 1;
    else
+   //Stack contains elements return 0
       return 0;
 }
 
@@ -34,21 +36,36 @@ Cell peek(){
 /* Function to delete from the stack */
 Cell pop(){
    Cell data;
-   if(!isempty()) {
+   if(!isempty()) 
+   {
       data = stack[top];
       top = top - 1;
       return data;
-   } else {
-      printf("Could not retrieve data, Stack is empty.\n");
+   } 
+   else 
+   {
+      printf("Could not removed data, Stack is empty.\n");
    }
 }
 
 /* Function to insert into the stack */
 Cell push(Cell data){
-   if(!isfull()) {
+   if(!isfull()) 
+   {
       top = top + 1;
       stack[top] = data;
-   } else {
+   } 
+   else 
+   {
       printf("Could not insert data, Stack is full.\n");
+   }
+}
+//Remove all items from the stack
+void resetStack()
+{
+   //Remove Cells from stack until empty
+   while (isempty() == 0)
+   {
+      pop();
    }
 }

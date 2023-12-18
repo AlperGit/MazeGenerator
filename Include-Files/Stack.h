@@ -18,3 +18,6 @@ Cell pop();
 
 /* Function to insert into the stack */
 Cell push(Cell data);
+
+/* Removed items from stack until empty*/
+void resetStack();
