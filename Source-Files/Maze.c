@@ -17,7 +17,7 @@ Vector2 startingPosition;
 //The minimum amount of cells consist of a startcell and an end cell
 const int minimumAmountCells = 2;
 //The maze as a two dimensional array is initialized in init
-Cell * maze;
+static Cell * maze;
 
 int initMaze(Vector2 grid_size, Vector2 starting_position, int amount_of_cells_to_generate)
 {
@@ -128,7 +128,7 @@ Cell * getMazeCellFromPosition(Vector2 position)
 /// @param neigbors The neigbors as an array sorted: up, right, down and left
 /// @param neighborCount The amount of neighbors to this cell
 /// @return True if there are neigbors for this cell else false
-bool findAllPossibleNeighbors(Cell currentCell, Cell * neigbors, int * neighborCount)
+bool findAllPossibleNeighbors(Cell * currentCell, Cell  neigbors[4], int * neighborCount)
 {
     //Set the initial amount of neighbors to 0
     *neighborCount = 0;
@@ -137,17 +137,17 @@ bool findAllPossibleNeighbors(Cell currentCell, Cell * neigbors, int * neighborC
     Vector2 posDown;
     Vector2 posLeft;
     //Set the upper position
-    posUp.x = currentCell.position.x;
-    posUp.y = currentCell.position.y + 1;
+    posUp.x = currentCell->position.x;
+    posUp.y = currentCell->position.y + 1;
 
-    posRight.x = currentCell.position.x + 1;
-    posRight.y = currentCell.position.y;
+    posRight.x = currentCell->position.x + 1;
+    posRight.y = currentCell->position.y;
 
-    posDown.x = currentCell.position.x;
-    posDown.y = currentCell.position.y - 1;
+    posDown.x = currentCell->position.x;
+    posDown.y = currentCell->position.y - 1;
 
-    posLeft.x = currentCell.position.x - 1;
-    posLeft.y = currentCell.position.y;
+    posLeft.x = currentCell->position.x - 1;
+    posLeft.y = currentCell->position.y;
 
     //Check if upper position would be in bounds of playing field
     if (isInBounds(posUp.x, posUp.y))
@@ -218,6 +218,10 @@ int generateMaze()
     //Initialize the cell stack to be used as the path that was taken
     //Set amount of cells to be generated to 0
     int generatedCells = 0; 
+    //Find all possible neighbors of this cell
+    Cell * neighbors;
+    neighbors = malloc(sizeof(Cell) * MAX_NEIGHBORS);
+
     //Empty the stack so it can be started fresh
     resetStack();
     //Reset the cells so they are not visited and have appropriate position
@@ -225,25 +229,27 @@ int generateMaze()
 
     //Get the current cell that is used from starting position
     Cell * p_currentCell = getMazeCellFromPosition(startingPosition);
-    Cell currentCell = *p_currentCell;
 
     //Create the route for this maze to be solvable
     while (generatedCells < amountOfCellsToGenerate)
     {
         //Set the current cell as visited
-        currentCell.visited = true;
-        //Find all possible neighbors of this cell
-        Cell neighbors[MAX_NEIGHBORS];
+        p_currentCell->visited = true;
+
         //Amount of found neigbors
         int neigborCount = 0;
         int * p_neighborCount = &neigborCount;
         //Check if there are neighbors for this cell
-        bool foundNeighbors = findAllPossibleNeighbors(currentCell, neighbors, p_neighborCount);
+        bool foundNeighbors = findAllPossibleNeighbors(p_currentCell,neighbors,p_neighborCount);
+        printf("Found neighbors: %d\n", foundNeighbors);
+        printf("Neighbor Amount: %d\n", *p_neighborCount);
+        
         //If amount of neighbors is 0 that means the path has found a dead end
         if (foundNeighbors == false)
         {
             //Remove last cell from the path stack and set it as the new cell
-            currentCell = pop();
+            Cell fromStack = pop();
+            p_currentCell = &fromStack;
         }
         //Else
         else
@@ -251,15 +257,16 @@ int generateMaze()
             //Randomly select one of these as the next Cell 
             srand(time(NULL));
             int nextIndex = rand() % neigborCount;
+            printf("New Neighbor Index %d\n", nextIndex);
             //Add current cell to the path stack
-            push(currentCell);
+            push(*p_currentCell);
             //Set new cell from randomly selected Index
-            currentCell = neighbors[nextIndex];
+            p_currentCell = &neighbors[nextIndex];
+            printf("New Cell Position: %d:%d\n", p_currentCell->position.x, p_currentCell->position.y);
             //Increase the generated cells amount
             generatedCells++;
+            displayMaze();
         }
 
     }
-    
-
 }
