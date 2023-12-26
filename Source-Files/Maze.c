@@ -1,55 +1,87 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
 #include "../Include-Files/Maze.h"
 #include "../Include-Files/Stack.h"
 #include "../Include-Files/Typedef.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 #define MAX_NEIGHBORS 4
 
-//The size defines the size of the grid that will be generated in x and y direction
-Vector2 gridSize;
-//This is the exit condition for the mazegenerator
-int amountOfCellsToGenerate;
-//The starting Position is the index of the cells List which will be generated.
-Vector2 startingPosition;
-//The minimum amount of cells consist of a startcell and an end cell
-const int minimumAmountCells = 2;
-//The maze as a two dimensional array is initialized in init
-static Cell * maze;
+//The size of the maze in x and y direction
+static Vector2 gridSize;
+//The starting position in the maze
+static Vector2 startingPosition;
+//The amount of cells to generate
+static int amountOfCellsToGenerate;
+//The maze as a 2 dimensional array
+static Cell ** maze;
+
+void resetCells()
+{
+    //Loop through the elements of the maze
+    for (int i = 0; i < gridSize.y; i++)
+    {
+        for (int j = 0; j < gridSize.x; j++)
+        {
+            maze[i][j].visited = false;
+            maze[i][j].position.y = i;
+            maze[i][j].position.x = j;
+        }
+        
+    }
+}
 
 int initMaze(Vector2 grid_size, Vector2 starting_position, int amount_of_cells_to_generate)
 {
-    //Check if amount of cells to generate exceeds gridsize
-    int sizeToCheck = gridSize.x * gridSize.y;
-    //Is the amount of cells to generate bigger than the grid size
-    if (sizeToCheck > amount_of_cells_to_generate)
-    {
-        //Yes return amount of cells to big error
-        return 1;
-    }
-    //Initialize maze
+    //Init all variables
     gridSize = grid_size;
     startingPosition = starting_position;
     amountOfCellsToGenerate = amount_of_cells_to_generate;
-    //Initialize the maze for a specific memory amount to fit the complete grid
-    maze = malloc(sizeof(Cell) * gridSize.x * gridSize.y);
-
+    //initialize the first dimension of the array with y as its "height"
+    maze = (Cell **) malloc(gridSize.y * sizeof(Cell *));
+    //Initialize the second dimension of the array with x as its "width"
+    for(int i = 0; i < gridSize.x; i++)
+    {
+        maze[i] = (Cell *) malloc(gridSize.x * sizeof(Cell));
+    }
+    resetCells();
+    srand(time(NULL));
     return 0;
 }
 
+void displayMaze()
+{
+    //Loop through the elements of the maze
+    for (int i = 0; i < gridSize.y; i++)
+    {
+        for (int j = 0; j < gridSize.x; j++)
+        {
+            if (maze[i][j].visited)
+            {
+                printf("C");
+            }
+            else
+            {
+                printf("X");
+            }
+            
+        }
+        printf("\n");
+        
+    }
+}
 
 bool isXInBounds(int xPosition)
 {
-    if(xPosition >= 0 && xPosition < gridSize.x)
+    if(xPosition >= 0 && xPosition <gridSize.x)
     {
         return true;
     }
-    else
+    else 
     {
         return false;
-    }
+    } 
 }
 
 bool isYInBounds(int yPosition)
@@ -58,15 +90,15 @@ bool isYInBounds(int yPosition)
     {
         return true;
     }
-    else
+    else 
     {
         return false;
-    }
+    } 
 }
 
-bool isInBounds(int xPosition, int yPosition)
+bool isInBounds(Vector2 position)
 {
-    if(isXInBounds(xPosition) && isYInBounds(yPosition))
+    if (isXInBounds(position.x) && isYInBounds(position.y))
     {
         return true;
     }
@@ -74,199 +106,95 @@ bool isInBounds(int xPosition, int yPosition)
     {
         return false;
     }
+    
 }
 
-void resetCells()
+void getNeighbors(Cell ** neigbors, int * amountNeigbors, Cell currentCell)
 {
-    //Iterate over complete maze length
-    for (int i = 0; i < (gridSize.x * gridSize.y); i++)
+    //Set amount Neigbors to 0
+    *amountNeigbors = 0;
+    //Set position of all possible neighbors
+    Vector2 up = currentCell.position;
+    up.y += 1;
+    Vector2 down = currentCell.position;
+    down.y -= 1;
+    Vector2 right = currentCell.position;
+    right.x += 1;
+    Vector2 left = currentCell.position;
+    left.x -= 1;
+    //Check if the upper cell is in bounds
+    if(isInBounds(up))
     {
-        Cell newCell;
-        //Get the right position of the cell in x direction
-        //The x position is the res
-        newCell.position.x = i % gridSize.x;
-        newCell.position.y = i / gridSize.y;
-        newCell.visited = false;
-        maze[i] = newCell;
-    }   
-}
-
-void displayMaze()
-{
-    printf("Maze:\n");
-    //Iterate over complete maze length
-    for (int i = 0; i < (gridSize.x * gridSize.y); i++)
-    {
-        //Add a linebreak whenever there is a new line
-        if( i > 0 && i % gridSize.x == 0)
+        //Check if the cell was already visited
+        if(!maze[up.y][up.x].visited)
         {
-            printf("\n");
-        }
-        //If the Cell has been visited print a C else a X
-        if (maze[i].visited)
-        {
-            printf("C");
-        }
-        else
-        {
-            printf("X");
+            neigbors[*amountNeigbors] = &maze[up.y][up.x];
+            *amountNeigbors+=1;
         }
     }
-    printf("\n");
-}
-
-//Return the cell that is defined from position
-Cell * getMazeCellFromPosition(Vector2 position)
-{
-    int index = 0;
-    index = (position.y * gridSize.y) + position.x;
-    return &maze[index];
-}
-
-/// @brief Return up, right, down and left position from this cell if in bounds
-/// @param currentCell The current cell to retrieve the neighbors
-/// @param neigbors The neigbors as an array sorted: up, right, down and left
-/// @param neighborCount The amount of neighbors to this cell
-/// @return True if there are neigbors for this cell else false
-bool findAllPossibleNeighbors(Cell * currentCell, Cell  neigbors[4], int * neighborCount)
-{
-    //Set the initial amount of neighbors to 0
-    *neighborCount = 0;
-    Vector2 posUp;
-    Vector2 posRight;
-    Vector2 posDown;
-    Vector2 posLeft;
-    //Set the upper position
-    posUp.x = currentCell->position.x;
-    posUp.y = currentCell->position.y + 1;
-
-    posRight.x = currentCell->position.x + 1;
-    posRight.y = currentCell->position.y;
-
-    posDown.x = currentCell->position.x;
-    posDown.y = currentCell->position.y - 1;
-
-    posLeft.x = currentCell->position.x - 1;
-    posLeft.y = currentCell->position.y;
-
-    //Check if upper position would be in bounds of playing field
-    if (isInBounds(posUp.x, posUp.y))
+    if(isInBounds(right))
     {
-        //Get the cell from upper position and return it
-        Cell * cellFromPosition = getMazeCellFromPosition(posUp);
-        //Check if cell has not been visited then add it as a neigbor
-        if(!cellFromPosition->visited)
+        if(!maze[right.y][right.x].visited)
         {
-            //Assign Cell as a neigbor of this position and return it.
-            neigbors[*neighborCount] = *cellFromPosition;
-            *neighborCount += 1;
+            neigbors[*amountNeigbors] = &maze[right.y][right.x];
+            *amountNeigbors+=1;
         }
     }
-
-    if (isInBounds(posRight.x, posRight.y))
+    if(isInBounds(down))
     {
-        //Get the cell from upper position and return it
-        Cell * cellFromPosition = getMazeCellFromPosition(posRight);
-        //Check if cell has not been visited then add it as a neigbor
-        if(!cellFromPosition->visited)
+        if(!maze[down.y][down.x].visited)
         {
-            //Assign Cell as a neigbor of this position and return it.
-            neigbors[*neighborCount] = *cellFromPosition;
-            *neighborCount += 1;
+            neigbors[*amountNeigbors] = &maze[down.y][down.x];
+            *amountNeigbors+=1;
         }
     }
-
-    if (isInBounds(posDown.x, posDown.y))
+    if(isInBounds(left))
     {
-        //Get the cell from upper position and return it
-        Cell * cellFromPosition = getMazeCellFromPosition(posDown);
-        //Check if cell has not been visited then add it as a neigbor
-        if(!cellFromPosition->visited)
+        if(!maze[left.y][left.x].visited)
         {
-            //Assign Cell as a neigbor of this position and return it.
-            neigbors[*neighborCount] = *cellFromPosition;
-            *neighborCount += 1;
+            neigbors[*amountNeigbors] = &maze[left.y][left.x];
+            *amountNeigbors+=1;
         }
-    }
-
-    if (isInBounds(posLeft.x, posLeft.y))
-    {
-        //Get the cell from upper position and return it
-        Cell * cellFromPosition = getMazeCellFromPosition(posLeft);
-        //Check if cell has not been visited then add it as a neigbor
-        if(!cellFromPosition->visited)
-        {
-            //Assign Cell as a neigbor of this position and return it.
-            neigbors[*neighborCount] = *cellFromPosition;
-            *neighborCount += 1;
-        }
-    }
-
-    //If Count of neighbor cell is higher than 0 return true else false
-    if(neighborCount > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
     }
 }
 
 int generateMaze()
 {
-    //Initialize the cell stack to be used as the path that was taken
-    //Set amount of cells to be generated to 0
-    int generatedCells = 0; 
-    //Find all possible neighbors of this cell
-    Cell * neighbors;
-    neighbors = malloc(sizeof(Cell) * MAX_NEIGHBORS);
-
-    //Empty the stack so it can be started fresh
-    resetStack();
-    //Reset the cells so they are not visited and have appropriate position
-    resetCells();
-
-    //Get the current cell that is used from starting position
-    Cell * p_currentCell = getMazeCellFromPosition(startingPosition);
-
-    //Create the route for this maze to be solvable
-    while (generatedCells < amountOfCellsToGenerate)
+    //Tracks how many Cells have been visited in total
+    int visitedCells = 0;
+    int amountNeighbors = 0;
+    //Set the currentCell of the maze
+    Cell * currentCell = &maze[startingPosition.y] [startingPosition.x];
+    //Neigbors of the current cell is always the size of 4
+    Cell ** neighbors = (Cell ** ) malloc(sizeof(Cell *) * MAX_NEIGHBORS);
+    while (visitedCells < amountOfCellsToGenerate)
     {
+        printf("Generated Cells: %d\n", visitedCells);
         //Set the current cell as visited
-        p_currentCell->visited = true;
-
-        //Amount of found neigbors
-        int neigborCount = 0;
-        int * p_neighborCount = &neigborCount;
-        //Check if there are neighbors for this cell
-        bool foundNeighbors = findAllPossibleNeighbors(p_currentCell,neighbors,p_neighborCount);
-        printf("Found neighbors: %d\n", foundNeighbors);
-        printf("Neighbor Amount: %d\n", *p_neighborCount);
-        
-        //If amount of neighbors is 0 that means the path has found a dead end
-        if (foundNeighbors == false)
+        currentCell->visited = true;
+        //Get the current neighbors  that were not visited and store them in an array
+        getNeighbors(neighbors, &amountNeighbors,*currentCell);
+        printf("Amount Neighbors: %d\n", amountNeighbors);
+        for (int i = 0; i < amountNeighbors; i++)
         {
-            //Remove last cell from the path stack and set it as the new cell
-            Cell fromStack = pop();
-            p_currentCell = &fromStack;
+            printf("%d %d %d:%d\n",i, neighbors[i]->visited, neighbors[i]->position.x, neighbors[i]->position.y);
         }
-        //Else
+        //IF there is more than one neighbor randomly select one of those available neighbors
+        if (amountNeighbors > 0)
+        {
+            int randomIndex = rand() % amountNeighbors;
+            //Add current cell to the stack and set the selected neigbor as the current cell
+            push(*currentCell);
+            currentCell = neighbors[randomIndex];
+            printf("New Cell position: %d:%d\n", currentCell->position.x, currentCell->position.y);
+            visitedCells +=1;
+        }
         else
         {
-            //Randomly select one of these as the next Cell 
-            srand(time(NULL));
-            int nextIndex = rand() % neigborCount;
-            printf("New Neighbor Index %d\n", nextIndex);
-            //Add current cell to the path stack
-            push(*p_currentCell);
-            //Set new cell from randomly selected Index
-            p_currentCell = &neighbors[nextIndex];
-            printf("New Cell Position: %d:%d\n", p_currentCell->position.x, p_currentCell->position.y);
-            //Increase the generated cells amount
-            generatedCells++;
-            displayMaze();
+            //If not get the newest element on the stack and set this as the current one
+            *currentCell = pop();
         }
-
+        
     }
+    
 }

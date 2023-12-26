@@ -9,7 +9,7 @@ bool isXInBounds(int xPosition);
 
 bool isYInBounds(int yPosition);
 
-bool isInBounds(int xPosition, int yPosition);
+bool isInBounds(Vector2 position);
 
 void displayMaze();
 

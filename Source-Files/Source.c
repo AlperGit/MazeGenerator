@@ -9,8 +9,8 @@ int main()
 {
     //Set grid size
     Vector2 gridSize;
-    gridSize.x = 4;
-    gridSize.y = 4;
+    gridSize.x = 3;
+    gridSize.y = 3;
     //Create a random starting position for x and y
     srand(time(NULL));
     Vector2 startingPos;
@@ -20,8 +20,8 @@ int main()
     printf("X: %d\n", startingPos.x);
     printf("Y: %d\n", startingPos.y);
     //Create a random number cells to generate
+    printf("grid size: %dx%d\n", gridSize.x, gridSize.y);
     int size = gridSize.x * gridSize.y;
-    printf("grid size: %d\n", size);
     int amountCellsToGenerate = rand() % size;
     printf("Amount of Cells to generate: %d\n", amountCellsToGenerate);
     //Initialize the maze array and assign memory
