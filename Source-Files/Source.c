@@ -9,8 +9,8 @@ int main()
 {
     //Set grid size
     Vector2 gridSize;
-    gridSize.x = 3;
-    gridSize.y = 3;
+    gridSize.x = 20;
+    gridSize.y = 5;
     //Create a random starting position for x and y
     srand(time(NULL));
     Vector2 startingPos;
