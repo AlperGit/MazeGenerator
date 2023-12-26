@@ -57,13 +57,17 @@ void displayMaze()
     {
         for (int j = 0; j < gridSize.x; j++)
         {
-            if (maze[i][j].visited)
+            if( i == startingPosition.y && j == startingPosition.x)
+            {
+                printf("S");
+            }
+            else if (maze[i][j].visited)
             {
                 printf("C");
             }
             else
             {
-                printf("X");
+                printf(" ");
             }
             
         }
@@ -169,16 +173,10 @@ int generateMaze()
     Cell ** neighbors = (Cell ** ) malloc(sizeof(Cell *) * MAX_NEIGHBORS);
     while (visitedCells < amountOfCellsToGenerate)
     {
-        printf("Generated Cells: %d\n", visitedCells);
         //Set the current cell as visited
         currentCell->visited = true;
         //Get the current neighbors  that were not visited and store them in an array
         getNeighbors(neighbors, &amountNeighbors,*currentCell);
-        printf("Amount Neighbors: %d\n", amountNeighbors);
-        for (int i = 0; i < amountNeighbors; i++)
-        {
-            printf("%d %d %d:%d\n",i, neighbors[i]->visited, neighbors[i]->position.x, neighbors[i]->position.y);
-        }
         //IF there is more than one neighbor randomly select one of those available neighbors
         if (amountNeighbors > 0)
         {
@@ -186,7 +184,6 @@ int generateMaze()
             //Add current cell to the stack and set the selected neigbor as the current cell
             push(*currentCell);
             currentCell = neighbors[randomIndex];
-            printf("New Cell position: %d:%d\n", currentCell->position.x, currentCell->position.y);
             visitedCells +=1;
         }
         else
